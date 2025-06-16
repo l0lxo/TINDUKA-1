@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Photo Submission</title>
+  <style>
+    * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', sans-serif;
+  }
+  
+  body {
+    background-color: #f9f9f9;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+  
+  .form-container {
+    background-color: #fff;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+  
+  h1 {
+    margin-bottom: 1.5rem;
+    font-size: 1.75rem;
+    color: #333;
+    text-align: center;
+  }
+  
+  form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #444;
+  }
+  
+  form input[type="text"],
+  form textarea,
+  form input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+    transition: border-color 0.2s ease;
+  }
+  
+  form input[type="text"]:focus,
+  form textarea:focus {
+    border-color: #555;
+    outline: none;
+    background-color: #fff;
+  }
+  
+  form button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  form button:hover {
+    background-color: #555;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .form-container {
+      padding: 1.5rem;
+    }
+  
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <?php include 'navbar.html'; ?>
+    <h1>Submit a Photo</h1>
+    <form>
+      <label for="photo">Upload Image</label>
+      <input type="file" id="photo" name="photo" accept="image/*" required />
+
+      <label for="title">Photo caption</label>
+      <input type="text" id="title" name="title" placeholder="Write a captivating caption to capture people's interest..." required />
+
+      <label for="location">Location</label>
+      <textarea id="location" name="location" placeholder="What county?" rows="1" required></textarea>
+
+      <label for="place">Place</label>
+      <textarea id="place" name="place" placeholder="Where in the county?" rows="1" required></textarea>
+
+      
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+  <?php include 'includes/footer.php'; ?>
+</body>
+</html>
