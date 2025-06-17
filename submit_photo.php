@@ -1,159 +1,219 @@
+<?php
+session_start();
+include('config.php');
+
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$error = '';
+$success = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $user_id = $_SESSION['user_id'];
+    $caption = trim($_POST['caption']);
+    $county = trim($_POST['county']);
+    $location = trim($_POST['location']);
+
+    // Validate inputs
+    if (empty($caption) || empty($county) || empty($location)) {
+        $error = "All fields are required";
+    } elseif (!isset($_FILES['photo']) || $_FILES['photo']['error'] != UPLOAD_ERR_OK) {
+        $error = "Please select a valid photo to upload";
+    } else {
+        // Create uploads directory if it doesn't exist
+        $upload_dir = __DIR__ . '/uploads/photos/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
+
+        // Generate unique filename
+        $file_ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+        $filename = 'photo_' . time() . '.' . $file_ext;
+        $target_path = 'uploads/photos/' . $filename;
+        // Move uploaded file
+        if (move_uploaded_file($_FILES['photo']['tmp_name'], $target_path)) {
+            // Store relative path in database
+            $photo_url = $target_path;
+            
+            $stmt = $conn->prepare("INSERT INTO photos (user_id, photo_url, caption, county, location) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("issss", $user_id, $photo_url, $caption, $county, $location);
+
+            if ($stmt->execute()) {
+                $success = "Photo uploaded successfully!";
+                $_POST = array(); // Clear form
+            } else {
+                $error = "Database error: " . $conn->error;
+                unlink($target_path); // Delete uploaded file if DB insert fails
+            }
+            $stmt->close();
+        } else {
+            $error = "Error moving uploaded file";
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Submission</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Helvetica Neue', sans-serif;
-        }
-        body {
-            background-color: #f9f9f9;
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-        }
-        .form-container {
-            background-color: #333;
-            padding: 15px;
-            max-width: 90%;
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-            color: white;
-        }
-        h1 {
-            margin-bottom: 1.5rem;
-            font-size: 1.75rem;
-            color: white;
-            text-align: center;
-        }
-        form label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: white;
-        }
-        form input[type="text"],
-        form textarea,
-        form input[type="text"],
-        form input[type="file"],
-        select {
-            width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 1.25rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #444;
-            color: white;
-            transition: border-color 0.2s ease;
-        }
-        form input[type="text"]:focus,
-        form textarea:focus,
-        form input[type="file"]:focus,
-        select:focus {
-            border-color: #4CAF50;
-            outline: none;
-            background-color: #555;
-        }
-        form button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        form button:hover {
-            background-color: #45a049;
-        }
-        .nav-link {
-            display: block;
-            text-align: center;
-            margin-top: 1rem;
-            color: #4CAF50;
-            text-decoration: none;
-            font-size: 1rem;
-        }
-        .nav-link:hover {
-            text-decoration: underline;
-        }
-        @media (max-width: 600px) {
-            .form-container {
-                padding: 1.5rem;
-            }
-            h1 {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upload Photo - TINDUKA</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    
+    .upload-container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 30px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h2 {
+      margin-top: 0;
+      color: #4CAF50;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    
+    input[type="text"],
+    input[type="file"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    
+    .preview-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .preview-image {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 4px;
+      display: none;
+    }
+    
+    .submit-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .submit-btn:hover {
+      background-color: #45a049;
+    }
+    
+    .error {
+      color: #f44336;
+      margin-bottom: 20px;
+    }
+    
+    .success {
+      color: #4CAF50;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
-    <div class="form-container">
-        <?php include 'includes/navbar.php'; ?>
-        <h1>Submit a Photo</h1>
-        <form id="photoForm">
-            <label for="photo">Upload Image</label>
-            <input type="file" id="photo" name="photo" accept="image/*" required>
-
-            <label for="title">Photo Caption</label>
-            <input type="text" id="title" name="title" placeholder="Write a captivating caption..." required>
-
-            <label for="county">County</label>
-            <select id="county" name="county" required>
-                <option value="" disabled selected>Select a county</option>
-                <option value="Nairobi">Nairobi</option>
-                <option value="Mombasa">Mombasa</option>
-                <option value="Kisumu">Kisumu</option>
-                <option value="Kisi">Kisi</option>
-            </select>
-
-            <label for="place">Location</label>
-            <select id="place" name="place" required>
-                <option value="" disabled selected>Select a location</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
-            </select>
-
-            <button type="submit">Submit</button>
-        </form>
-        <a href="gallery.php" class="nav-link">View Gallery</a>
-    </div>
-        <?php include 'includes/footer.php'; ?>
-    <script>
-        document.getElementById("photoForm").onsubmit = function(e) {
-            e.preventDefault();
-            const photo = document.getElementById("photo").files[0];
-            const title = document.getElementById("title").value;
-            const county = document.getElementById("county").value;
-            const place = document.getElementById("place").value;
-
-            const reader = new FileReader();
-            reader.onload = function() {
-                const photos = JSON.parse(localStorage.getItem("photos") || "[]");
-                photos.push({
-                    src: reader.result,
-                    caption: title,
-                    county: county,
-                    location: place
-                });
-                localStorage.setItem("photos", JSON.stringify(photos));
-                alert("Photo submitted successfully!");
-                window.location.href = "gallery.html"; // Redirect to gallery
-            };
-            reader.readAsDataURL(photo);
-        };
-    </script>
+  <?php include 'includes/navbar.php'; ?>
+  
+  <div class="upload-container">
+    <h2>Upload a New Photo</h2>
+    
+    <?php if ($error): ?>
+      <div class="error"><?php echo htmlspecialchars($error); ?></div>
+    <?php endif; ?>
+    
+    <?php if ($success): ?>
+      <div class="success"><?php echo htmlspecialchars($success); ?></div>
+    <?php endif; ?>
+    
+    <form action="submit_photo.php" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="photo">Photo</label>
+        <input type="file" id="photo" name="photo" accept="image/*" required>
+        <div class="preview-container">
+          <img id="previewImage" class="preview-image" src="#" alt="Preview">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="caption">Caption</label>
+        <input type="text" id="caption" name="caption" value="<?php echo htmlspecialchars($_POST['caption'] ?? ''); ?>" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="county">County</label>
+        <select id="county" name="county" required>
+          <option value="">Select County</option>
+          <option value="Nairobi" <?php echo (isset($_POST['county']) && $_POST['county'] == 'Nairobi') ? 'selected' : ''; ?>>Nairobi</option>
+          <option value="Mombasa" <?php echo (isset($_POST['county']) && $_POST['county'] == 'Mombasa') ? 'selected' : ''; ?>>Mombasa</option>
+          <option value="Kisumu" <?php echo (isset($_POST['county']) && $_POST['county'] == 'Kisumu') ? 'selected' : ''; ?>>Kisumu</option>
+          <option value="Kisi" <?php echo (isset($_POST['county']) && $_POST['county'] == 'Kisi') ? 'selected' : ''; ?>>Kisi</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" value="<?php echo htmlspecialchars($_POST['location'] ?? ''); ?>" required>
+      </div>
+      
+      <button type="submit" class="submit-btn">Upload Photo</button>
+      <a href="gallery.php">go back to gallery?</a>
+    </form>
+  </div>
+  
+  <?php include 'includes/footer.php'; ?>
+  
+  <script>
+    // Image preview functionality
+    document.getElementById('photo').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const preview = document.getElementById('previewImage');
+          preview.src = event.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
 </body>
 </html>

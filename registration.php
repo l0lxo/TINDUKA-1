@@ -7,9 +7,18 @@
   <link rel="stylesheet" href="registration.css" />
 </head>
 <body>
-  <form class="form" method="post" action="/signup">
+  <!-- Change action to register.php and add error display -->
+  <form class="form" method="post" action="register.php">
     <p class="title">Register</p>
     <p class="message">Signup now and get full access to our features.</p>
+
+    <!-- Show PHP errors if they exist -->
+    <?php if (isset($_GET['error'])): ?>
+      <div style="color: red; text-align: center; margin-bottom: 10px;">
+        <?php echo htmlspecialchars($_GET['error']); ?>
+      </div>
+    <?php endif; ?>
+
     <div class="flex">
       <label>
         <input required placeholder="" type="text" class="input" name="firstname" />
@@ -33,7 +42,7 @@
       <input required placeholder="" type="password" class="input" name="confirmpassword" />
       <span>Confirm password</span>
     </label>
-    <button class="submit">Submit</button>
+    <button class="submit" type="submit">Submit</button>
     <p class="signin">Already have an account? <a href="/signin">Signin</a></p>
   </form>
 </body>
