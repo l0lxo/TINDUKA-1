@@ -6,7 +6,7 @@
     <title>Photo Gallery</title>
 </head>
 <body style="margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: white; color: #333;">
-    <?php include 'navbar.html'; ?>
+    <?php include 'includes/navbar.php'; ?>
     <!-- Header Section -->
     <div style="padding: 20px; background-color: #4CAF50; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <h2 style="color: white; margin: 0 0 15px; font-size: 2rem; font-weight: 700;">Photo Gallery</h2>
@@ -25,7 +25,7 @@
                 <option value="Kisumu">Kisumu</option>
                 <option value="Kisi">Kisi</option>
             </select>
-            <a href="submit_photo.html" style="padding: 12px 20px; background-color: white; color: #4CAF50; text-decoration: none; border-radius: 8px; font-weight: 500; transition: background-color 0.2s, color 0.2s;">Submit a New Photo</a>
+            <a href="submit_photo.php" style="padding: 12px 20px; background-color: white; color: #4CAF50; text-decoration: none; border-radius: 8px; font-weight: 500; transition: background-color 0.2s, color 0.2s;">Submit a New Photo</a>
         </div>
     </div>
 

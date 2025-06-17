@@ -99,7 +99,7 @@
 </head>
 <body>
     <div class="form-container">
-        <?php include 'navbar.html'; ?>
+        <?php include 'includes/navbar.php'; ?>
         <h1>Submit a Photo</h1>
         <form id="photoForm">
             <label for="photo">Upload Image</label>
@@ -128,7 +128,7 @@
 
             <button type="submit">Submit</button>
         </form>
-        <a href="gallery.html" class="nav-link">View Gallery</a>
+        <a href="gallery.php" class="nav-link">View Gallery</a>
     </div>
         <?php include 'includes/footer.php'; ?>
     <script>

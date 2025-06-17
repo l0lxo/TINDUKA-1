@@ -209,7 +209,7 @@
   </style>
 </head>
 <body>
-    <?php include 'navbar.html'; ?>
+    <?php include 'includes/navbar.php'; ?>
   <div class="profile-header">
     <div class="user-info">
       <img src="https://via.placeholder.com/100" alt="Profile Picture" />

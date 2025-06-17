@@ -13,13 +13,12 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    
+<?php include 'includes/navbar.php'; ?>
     <section class="hero">
-        <?php include 'navbar.html'; ?>
         <div class="container">
             <h1 class="bold1">Transform Your Travel Aspirations</h1>
             <p>Explore a vibrant community where breathtaking destinations come alive through stunning images and short videos shared by fellow adventurers. Gain inspiration for your next trip while browsing through curated content showcasing popular spots visited by travelers worldwide.</p>
-            <a href="gallery.html" class="btn">Start Discovering</a>
+            <a href="gallery.php" class="btn">Start Discovering</a>
         </div>
     </section>
     
