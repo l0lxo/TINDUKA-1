@@ -2,7 +2,6 @@
 session_start();
 include('config.php');
 
-// Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -23,20 +22,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (!isset($_FILES['photo']) || $_FILES['photo']['error'] != UPLOAD_ERR_OK) {
         $error = "Please select a valid photo to upload";
     } else {
-        // Create uploads directory if it doesn't exist
+        // Set upload directory (using absolute server path)
         $upload_dir = __DIR__ . '/uploads/photos/';
+        
+        // Create directory if it doesn't exist
         if (!is_dir($upload_dir)) {
             mkdir($upload_dir, 0755, true);
         }
 
         // Generate unique filename
-        $file_ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-        $filename = 'photo_' . time() . '.' . $file_ext;
-        $target_path = 'uploads/photos/' . $filename;
-        // Move uploaded file
-        if (move_uploaded_file($_FILES['photo']['tmp_name'], $target_path)) {
-            // Store relative path in database
-            $photo_url = $target_path;
+        $file_ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
+        $filename = uniqid('photo_', true) . '.' . $file_ext;
+        $target_path = $upload_dir . $filename;
+
+        // Validate image
+        $valid_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+        if (!in_array($file_ext, $valid_extensions)) {
+            $error = "Only JPG, JPEG, PNG & GIF files are allowed";
+        } elseif ($_FILES['photo']['size'] > 5000000) { // 5MB limit
+            $error = "File is too large (max 5MB)";
+        } elseif (move_uploaded_file($_FILES['photo']['tmp_name'], $target_path)) {
+            // Store in database with consistent format
+            $photo_url = 'uploads/photos/' . $filename;
             
             $stmt = $conn->prepare("INSERT INTO photos (user_id, photo_url, caption, county, location) VALUES (?, ?, ?, ?, ?)");
             $stmt->bind_param("issss", $user_id, $photo_url, $caption, $county, $location);
@@ -46,11 +53,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_POST = array(); // Clear form
             } else {
                 $error = "Database error: " . $conn->error;
-                unlink($target_path); // Delete uploaded file if DB insert fails
+                unlink($target_path); // Delete uploaded file if DB fails
             }
             $stmt->close();
         } else {
-            $error = "Error moving uploaded file";
+            $error = "Upload failed. Check server permissions.";
         }
     }
 }
