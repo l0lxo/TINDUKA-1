@@ -1,6 +1,4 @@
-<?php
-session_start(); // Start session at the very beginning
-?>
+
 
 <nav style="background-color: #4CAF50; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
     <div style="display: flex; align-items: center;">

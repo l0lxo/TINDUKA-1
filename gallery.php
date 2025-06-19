@@ -97,7 +97,7 @@ function getFullUrl($path) {
         <button id="prevBtn" style="position: absolute; left: 15px; background-color: #4CAF50; color: white; border: none; padding: 12px; font-size: 24px; border-radius: 8px; cursor: pointer; transition: background-color 0.2s;">❮</button>
         <button id="nextBtn" style="position: absolute; right: 15px; background-color: #4CAF50; color: white; border: none; padding: 12px; font-size: 24px; border-radius: 8px; cursor: pointer; transition: background-color 0.2s;">❯</button>
     </div>
-    <?php include 'includes/footer.php'; ?>
+    <?php include 'includes/footer.html'; ?>
     
     <script>
         // Convert PHP photos array to JavaScript
